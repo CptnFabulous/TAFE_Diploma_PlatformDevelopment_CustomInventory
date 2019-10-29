@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   description: These beans are a great source of fibre and protein, and are cultivated
     by the tribes living in the southern jungles.
-  icon: {fileID: 2800000, guid: 1e55eadeff83040448417a101712d494, type: 3}
+  icon: {fileID: 21300000, guid: 1e55eadeff83040448417a101712d494, type: 3}
   mesh: {fileID: 0}
+  miscellaneousStats: A useful ingredient for creating potions.
   maxStack: 99
   price: 5

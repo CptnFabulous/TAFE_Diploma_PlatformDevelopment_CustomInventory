@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 79dc8d9411b79e54e9dd33ba51485a2c, type: 3}
-  m_Name: Acorn
+  m_Name: Magic Mushroom
   m_EditorClassIdentifier: 
-  description: It's an acorn.
-  icon: {fileID: 2800000, guid: 790ca24fd38ad5240b11860e4b59b7d2, type: 3}
+  description: This fungus is named for its cosmetic similarity to a wizard's hat,
+    and its mana storing properties. This fact has disappointed many junkies in search
+    of an exotic new fix.
+  icon: {fileID: 21300000, guid: 1562e2780bcbb114daf97561bbfd3834, type: 3}
   mesh: {fileID: 0}
+  miscellaneousStats: A useful ingredient for creating potions.
   maxStack: 99
-  price: 5
+  price: 10

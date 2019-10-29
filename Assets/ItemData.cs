@@ -6,16 +6,18 @@ public static class ItemData
 {
     static string[] items = new string[]
     {
-        ""
+        "Magic Mushroom"
     };
 
     public static Item GetItemByID(int id)
     {
+        // Have code to check if ID is valid, give a placeholder item if invalid
         return Resources.Load<Item>("Items/ItemObjects/" + items[id]);
     }
 
     public static Item GetItemByName(string name)
     {
+        // Have code to check if name is valid, give a placeholder item if invalid
         return Resources.Load<Item>("Items/ItemObjects/" + name);
     }
 

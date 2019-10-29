@@ -6,8 +6,10 @@ using UnityEngine;
 public class Item : ScriptableObject
 {
     public string description;
-    public Texture2D icon;
+    public Sprite icon;
     public GameObject mesh;
+
+    public string miscellaneousStats;
 
     public int maxStack;
     public int price;
