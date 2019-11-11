@@ -3,39 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerInventory : MonoBehaviour
+public class PlayerDragAndDropInventory : MonoBehaviour
 {
     [Header("GUI")]
     public Canvas inventoryScreen;
     public KeyCode toggleButton; // Replace with Input.GetButton
-
-    [Header("Slot screen")]
-    public RectTransform slotScreen;
-    public Button slotButtonPrefab;
-    public Text slotInfo;
-    public Text sortInfo;
-
-    [Header("Inspect item")]
-    public Text itemName;
-    public Image itemIcon;
-    public Text itemCost;
-    public Text[] itemBasicStats;
-    public Text itemAdditionalStats;
-    public Text flavourText;
-
-    [Header("Compare items")]
-    public Image compareIcon;
-    public Text compareName;
-    public Text[] compareBasicStats;
-    public Text compareAdditionalStats;
-
-    
-
+    public RectTransform slotPrefab;
+    public ItemInspector inspectPrefab;
 
     [Header("Slots")]
-    public int maxSlots = 30;
+    public Vector2 slotArray = new Vector2(10, 3);
     public List<ItemStack> items;
-    
+
     [Header("Equip slots")]
     public EquipSlot rightHand;
     public EquipSlot leftHand;
@@ -43,7 +22,9 @@ public class PlayerInventory : MonoBehaviour
     public EquipSlot torso;
     public EquipSlot lower;
 
-    
+    ItemInspector currentItemInspector;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -67,6 +48,8 @@ public class PlayerInventory : MonoBehaviour
         if (inventoryScreen.enabled == true) // If inventory screen is showing
         {
             // Do inventory screen stuff
+
+            
         }
     }
 
@@ -92,7 +75,7 @@ public class PlayerInventory : MonoBehaviour
 
                 if (inventoryStack.item == itemsObtained.item) // If a stack of the obtained item already exists but has not been filled yet
                 {
-                    
+
                     // Adds new amount of item to existing stack
                     int spaceInStack = inventoryStack.item.maxStack - inventoryStack.quantity; // Checks how much free space is available in that slot
 
@@ -114,7 +97,7 @@ public class PlayerInventory : MonoBehaviour
             }
         }
 
-        if (itemsObtained.quantity > 0 && items.Count < maxSlots) // If items remain after existing slots have been checked, but empty slots are present
+        if (itemsObtained.quantity > 0 && items.Count < slotArray.x * slotArray.y) // If items remain after existing slots have been checked, but empty slots are present
         {
             items.Add(new ItemStack { item = itemsObtained.item, quantity = itemsObtained.quantity });
             itemsObtained.quantity = 0;
@@ -125,39 +108,40 @@ public class PlayerInventory : MonoBehaviour
     #region GUI elements
     void RefreshScreen(List<ItemStack> itemsToDisplay)
     {
-        slotInfo.text = "SLOTS: " + items.Count + "/" + maxSlots;
-
-        for (int i = 0; i < itemsToDisplay.Count; i++)
+        for (int i = 0; i < itemsToDisplay.Count;)
         {
-            ItemStack items = itemsToDisplay[i];
-            Button b = Instantiate(slotButtonPrefab, slotScreen);
-
-            Text t = b.GetComponent<Text>();
-            if (items.quantity != 1)
+            for (int y = 0; y < slotArray.y; y++)
             {
-                t.text = items.item.name + ": " + items.quantity;
+                for (int x = 0; x < slotArray.x; x++)
+                {
+                    // Add item slot
+                    i++;
+                }
             }
-            else
-            {
-                t.text = items.item.name;
-            }
-
-            
-            b.onClick.AddListener(() => InspectItem(items.item));
-
-            RectTransform br = b.GetComponent<RectTransform>();
-            br.position += Vector3.down * i * br.rect.height;
         }
+        
     }
 
-    public void InspectItem(Item i)
+    public void InspectItem(ItemStack i)
     {
+        if (currentItemInspector == null)
+        {
+            GameObject itemWindow = Instantiate(inspectPrefab.gameObject, new Vector3(Input.mousePosition.x, Input.mousePosition.y), Quaternion.identity, inventoryScreen.transform);
+            ItemInspector ii = itemWindow.GetComponent<ItemInspector>();
+            currentItemInspector = ii;
+            ii.nameBox.text = i.item.name;
+            ii.icon.sprite = i.item.icon;
+            ii.cost.text = "$" + i.item.price;
+            ii.additionalStats.text = i.item.miscellaneousStats;
+            ii.flavourText.text = i.item.description;
+        }
 
-        itemName.text = i.name;
-        itemIcon.sprite = i.icon;
-        itemCost.text = "$" + i.price;
-        itemAdditionalStats.text = i.miscellaneousStats;
-        flavourText.text = i.description;
+        currentItemInspector.transform.position = new Vector3(Input.mousePosition.x, Input.mousePosition.y);
+    }
+
+    public void NewItemWindow(Item i)
+    {
+        
     }
     #endregion
 
