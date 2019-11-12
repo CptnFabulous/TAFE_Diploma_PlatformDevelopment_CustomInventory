@@ -7,6 +7,8 @@ public class PlayerDragAndDropInventory : MonoBehaviour
 {
     [Header("GUI")]
     public Canvas inventoryScreen;
+    public RectTransform gridPanel;
+    public Vector2 panelBorders;
     public KeyCode toggleButton; // Replace with Input.GetButton
     public RectTransform slotPrefab;
     public ItemInspector inspectPrefab;
@@ -108,12 +110,17 @@ public class PlayerDragAndDropInventory : MonoBehaviour
     #region GUI elements
     void RefreshScreen(List<ItemStack> itemsToDisplay)
     {
+        //Vector2 gridWidth = new Vector2((slotPrefab.rect.width * slotArray.x) + (panelBorders.x * 2), (slotPrefab.rect.height * slotArray.y) + (panelBorders.y * 2));
+        gridPanel.anchoredPosition = new Vector2(gridPanel.rect.x, gridPanel.rect.y);
+        gridPanel.sizeDelta = new Vector2((slotPrefab.rect.width * slotArray.x) + (panelBorders.x * 2), (slotPrefab.rect.height * slotArray.y) + (panelBorders.y * 2));
+
         for (int i = 0; i < itemsToDisplay.Count;)
         {
             for (int y = 0; y < slotArray.y; y++)
             {
                 for (int x = 0; x < slotArray.x; x++)
                 {
+                    
                     // Add item slot
                     i++;
                 }
