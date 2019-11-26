@@ -5,114 +5,130 @@ using UnityEngine.UI;
 
 public class RadialMenu : MonoBehaviour
 {
-    [Header("Inventory")]
-    public int maxSlots = 16;
-    public List<ItemStack> items;
-
     [Header("GUI")]
-    public Canvas menu;
-    public RectTransform wheelBase;
     public Image iconPrefab;
+    public string buttonName;
     public float wheelRadius;
+    [Range(-180, 180)]
+    public float rotationOffset;
 
-    [Header("Variables")]
+    int slots;
+    int selectedIndex;
+    Image[] wheelIcons = new Image[1];
+    bool wasActive;
 
-    int wheelIndex;
-    Image[] wheelIcons;
-
-    // Start is called before the first frame update
-    void Start()
+    public void WheelHandler()
     {
+        if (Input.GetButton(buttonName) && slots > 1) // If button is pressed and there is another slot to swap to
+        {
+            gameObject.SetActive(true);
+            wasActive = true;
+
+            #region Calculate index
+
+            Vector3 relativeMousePosition = Input.mousePosition - transform.position;
+            float selectAngle = -Vector3.SignedAngle(transform.up, relativeMousePosition, transform.forward);
+            // Alternate functions for analog stick
+            //Vector3 relativeControllerPosition = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+            //float selectAngle = -Vector3.SignedAngle(wheelBase.up, relativeControllerPosition, wheelBase.forward);
+
+            selectAngle -= rotationOffset; // Angle is changed based on rotationOffset to account for the changed positions of the icons based on rotationOffset
+
+            if (selectAngle < 0)
+            {
+                selectAngle += 360;
+            }
+            float segmentSize = 360 / slots;
+            int index = Mathf.RoundToInt(selectAngle / segmentSize);
+            if (index >= slots)
+            {
+                index = 0;
+            }
+            selectedIndex = index;
+            #endregion
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
+    }
+
+    public void RefreshWheel(int slotCount, Sprite[] icons)
+    {
+        slots = slotCount;
+        if (wheelIcons.Length != slots)
+        {
+            foreach (Image i in wheelIcons)
+            {
+                if (i != null)
+                {
+                    Destroy(i.gameObject);
+                }
+            }
+            wheelIcons = new Image[slots];
+            for (int i = 0; i < wheelIcons.Length; i++) // Put all icons from wheelIcons into newWheelIcons, then instantiate new icons until there is an icon for every item
+            {
+                Image icon = Instantiate(iconPrefab, Vector3.zero, Quaternion.identity, transform);
+                wheelIcons[i] = icon;
+
+                float segmentSize = 360 / slots;
+                float angle = (segmentSize * i) + rotationOffset;
+                Vector3 iconPosition = Quaternion.Euler(0, 0, -angle) * new Vector3(0, wheelRadius, 0);
+                wheelIcons[i].rectTransform.anchoredPosition = iconPosition;
+            }
+        }
+
         
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            menu.gameObject.SetActive(true);
-            RefreshWheel();
-        }
-
-        if (menu.gameObject.activeSelf == true)
-        {
-            // Do selector stuff
-
-            // Get angle of mouse/stick angle relative to centre of wheel
-            // int selectedSector = get ???
-
-            
-        }
-
-        if (Input.GetKeyUp(KeyCode.Q))
-        {
-            menu.gameObject.SetActive(false);
-        }
-    }
-
-    void RefreshWheel()
-    {
-        float angle = 360 / items.Count;
-
-        #region Checks amount of icons and destroys/creates new icons accordingly
-
-        if (wheelIcons.Length != items.Count) // NullReferenceException here, needs fixing
-        {
-            Image[] newWheelIcons = new Image[items.Count]; // Creates new array whose length matches the amount of items
-
-            if (wheelIcons.Length < items.Count)
-            {
-                for (int i = 0; i < newWheelIcons.Length; i++) // Put all icons from wheelIcons into newWheelIcons, then instantiate new icons until there is an icon for every item
-                {
-                    if (i < wheelIcons.Length)
-                    {
-                        newWheelIcons[i] = wheelIcons[i];
-                    }
-                    else
-                    {
-                        Image icon = Instantiate(iconPrefab, Vector3.zero, Quaternion.identity, wheelBase);
-                        newWheelIcons[i] = icon;
-                    }
-                }
-                wheelIcons = newWheelIcons; // Replace wheelIcons with newWheelIcons to reference icons
-            }
-            else if (wheelIcons.Length > items.Count)
-            {
-                for (int i = 0; i < wheelIcons.Length; i++) // For each image in wheelIcons, put in newWheelIcons until newWheelIcons is full, then destroy any excess images
-                {
-                    if (i < newWheelIcons.Length)
-                    {
-                        newWheelIcons[i] = wheelIcons[i];
-                    }
-                    else
-                    {
-                        Destroy(wheelIcons[i]);
-                    }
-                }
-            }
-
-            wheelIcons = newWheelIcons; // Replace wheelIcons with newWheelIcons to reference icons
-        }
-        #endregion
-
         for (int i = 0; i < wheelIcons.Length; i++)
         {
-            Vector3 iconPosition = Quaternion.Euler(0, 0, angle * i) * new Vector3(0, wheelRadius, 0);
-            wheelIcons[i].rectTransform.anchoredPosition = iconPosition;
-
-            if (items[i].item != null)
+            if (icons[i] != null)
             {
-                if (items[i].item.icon != null)
-                {
-                    wheelIcons[i].sprite = items[i].item.icon;
-                }
+                wheelIcons[i].sprite = icons[i];
             }
-            //RectTransform rt = Instantiate(iconPrefab, Vector3.zero, Quaternion.identity, wheelBase).rectTransform;
-            //rt.anchoredPosition = iconPosition;
-
-            //iconPrefab.sprite = items[i].item.icon;
         }
     }
 
+    public int ReturnIndex()
+    {
+        return Mathf.Clamp(selectedIndex, 0, slots - 1);
+    }
+
+    public bool SelectionMade() // Returns true when the player exits the weapon wheel
+    {
+        if (gameObject.activeSelf == false && wasActive == true) // Check if was active last frame, if so return trues
+        {
+            wasActive = false;
+            return true;
+            
+        }
+        return false;
+    }
+
+    /*
+    float InverseClamp(float input, float min, float max)
+    {
+        if (input > max)
+        {
+            input = min;
+        }
+        else if (input < min)
+        {
+            input = max;
+        }
+        return input;
+    }
+
+    int InverseClamp(int input, int min, int max)
+    {
+        if (input > max)
+        {
+            input = min;
+        }
+        else if (input < min)
+        {
+            input = max;
+        }
+        return input;
+    }
+    */
 }
