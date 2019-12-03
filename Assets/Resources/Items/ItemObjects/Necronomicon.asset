@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79dc8d9411b79e54e9dd33ba51485a2c, type: 3}
   m_Name: Necronomicon
   m_EditorClassIdentifier: 
+  type: 5
   description: This disturbing tome can be read to summon all manner of shambling,
     undead beings, like skeletons, vampires and minimum-wage fast-food workers.
   icon: {fileID: 21300000, guid: c26ef632ba9f89549a4c01c6b438ce55, type: 3}
